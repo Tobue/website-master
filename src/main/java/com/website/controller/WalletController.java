@@ -31,7 +31,7 @@ public class WalletController {
     @PostMapping("queryByUserId")
     @ApiOperation("查询用户钱包余额")
     public Result queryByUserId(@RequestBody Wallet wallet) {
-        return Result.success(walletService.queryByUserId(wallet));
+        return walletService.queryByUserId(wallet);
     }
 
     /**

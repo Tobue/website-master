@@ -33,9 +33,12 @@ public class WalletServiceImpl extends ServiceImpl<WalletMapper, Wallet> impleme
 
 
     @Override
-    public Wallet queryByUserId(Wallet wallet) {
+    public Result queryByUserId(Wallet wallet) {
+        if (wallet.getUserId() == null) {
+            return Result.fail("用户ID不存在");
+        }
         QueryWrapper<Wallet> wrapper = new QueryWrapper<Wallet>().eq("user_id",wallet.getUserId());
-        return walletMapper.selectOne(wrapper);
+        return Result.success(walletMapper.selectOne(wrapper));
     }
 
     /**
@@ -56,7 +59,17 @@ public class WalletServiceImpl extends ServiceImpl<WalletMapper, Wallet> impleme
         if(wallet == null){
             return Result.fail("钱包不存在");
         }
-        wallet.setBalance(wallet.getBalance().subtract(money));
+        //type=2消费
+        if(param.getType().equals("2")){
+            BigDecimal subtract = wallet.getBalance().subtract(money);
+            // 返回1表示小于0，返回-1表示大于
+            if (subtract.compareTo(BigDecimal.ZERO) < 0) {
+                return Result.fail("金额不足,无法消费");
+            }
+            wallet.setBalance(subtract);
+        }else if(param.getType().equals("4")){ //type = 4 为退款
+            wallet.setBalance(money);
+        }
         walletMapper.updateById(wallet);
         //添加明细表
         WalletDetail detail = new WalletDetail();

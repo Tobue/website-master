@@ -12,7 +12,7 @@ import java.util.List;
 
 public interface WalletService extends IService<Wallet> {
 
-    Wallet queryByUserId(Wallet wallet);
+    Result queryByUserId(Wallet wallet);
 
     Result handWallet(WaylletDto wallet);
 
